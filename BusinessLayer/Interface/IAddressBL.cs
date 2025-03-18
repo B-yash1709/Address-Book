@@ -10,10 +10,10 @@ namespace BusinessLayer.Interface
 {
     public interface IAddressBL
     {
-        ResponseModel<IEnumerable<AddressBookEntity>> GetAllContacts();
-        ResponseModel<UserModel> GetContactById(int id);
-        ResponseModel<UserModel> AddContact(UserModel user);
-        ResponseModel<UserModel> UpdateContact(int id, UserModel user);
-        ResponseModel<string> DeleteContact(int id);
+        ResponseModelSMT<IEnumerable<AddressBookEntity>> GetAllContacts();
+        ResponseModelSMT<ResponseUserModel> GetContactById(int id);
+        ResponseModelSMT<ResponseUserModel> AddContact(ResponseUserModel user);
+        ResponseModelSMT<ResponseUserModel> UpdateContact(int id, ResponseUserModel user);
+        ResponseModelSMT<string> DeleteContact(int id);
     }
 }

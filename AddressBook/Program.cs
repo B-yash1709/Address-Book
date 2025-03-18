@@ -1,6 +1,7 @@
 
 
 using BusinessLayer.Interface;
+using BusinessLayer.Mappings;
 using BusinessLayer.Service;
 using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.Context;
@@ -15,6 +16,8 @@ builder.Services.AddDbContext<AddressBookDbContext>(options =>
 // Configure Dependency Injection
 builder.Services.AddScoped<IAddressRL, AddressRL>();
 builder.Services.AddScoped<IAddressBL, AddressBL>();
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(AddressBookProfile));
 // Add services to the container.
 
 builder.Services.AddControllers();

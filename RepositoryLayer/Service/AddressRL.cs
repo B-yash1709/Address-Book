@@ -24,12 +24,12 @@ namespace RepositoryLayer.Service
             return _context.AddressBookEntities.ToList();
         }
 
-        public UserModel GetContactById(int id)
+        public ResponseUserModel GetContactById(int id)
         {
             var entity = _context.AddressBookEntities.Find(id);
             if (entity == null) return null;
 
-            return new UserModel
+            return new ResponseUserModel
             {
                 Id = entity.Id,
                 Name = entity.Name,
@@ -38,7 +38,7 @@ namespace RepositoryLayer.Service
             };
         }
 
-        public UserModel AddContact(UserModel user)
+        public ResponseUserModel AddContact(ResponseUserModel user)
         {
             var entity = new AddressBookEntity
             {
@@ -54,7 +54,7 @@ namespace RepositoryLayer.Service
             return user;
         }
 
-        public UserModel UpdateContact(int id, UserModel user)
+        public ResponseUserModel UpdateContact(int id, ResponseUserModel user)
         {
             var entity = _context.AddressBookEntities.Find(id);
             if (entity == null) return null;

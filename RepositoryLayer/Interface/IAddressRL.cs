@@ -11,9 +11,9 @@ namespace RepositoryLayer.Interface
     public interface IAddressRL
     {
         IEnumerable<AddressBookEntity> GetAllContacts();
-        UserModel GetContactById(int id);
-        UserModel AddContact(UserModel user);
-        UserModel UpdateContact(int id, UserModel user);
+        ResponseUserModel GetContactById(int id);
+        ResponseUserModel AddContact(ResponseUserModel user);
+        ResponseUserModel UpdateContact(int id, ResponseUserModel user);
         bool DeleteContact(int id);
     }
 }

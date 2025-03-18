@@ -9,6 +9,7 @@ namespace AddressBook.Controllers
     [ApiController]
     public class AddressBookController : ControllerBase
     {
+
         private readonly IAddressBL _addressBL;
 
         public AddressBookController(IAddressBL addressBL)
@@ -18,7 +19,7 @@ namespace AddressBook.Controllers
 
         // GET: Fetch all contacts
         [HttpGet]
-        public ActionResult<ResponseModel<IEnumerable<AddressBookEntity>>> GetAllContacts()
+        public ActionResult<ResponseModelSMT<IEnumerable<AddressBookEntity>>> GetAllContacts()
         {
             var result = _addressBL.GetAllContacts();
             return Ok(result);
@@ -26,7 +27,7 @@ namespace AddressBook.Controllers
 
         // GET: Fetch contact by ID
         [HttpGet("{id}")]
-        public ActionResult<ResponseModel<UserModel>> GetContactById(int id)
+        public ActionResult<ResponseModelSMT<ResponseUserModel>> GetContactById(int id)
         {
             var result = _addressBL.GetContactById(id);
             return result.Success ? Ok(result) : NotFound(result);
@@ -34,7 +35,7 @@ namespace AddressBook.Controllers
 
         // POST: Add new contact
         [HttpPost]
-        public ActionResult<ResponseModel<UserModel>> AddContact([FromBody] UserModel request)
+        public ActionResult<ResponseModelSMT<ResponseUserModel>> AddContact([FromBody] ResponseUserModel request)
         {
             var result = _addressBL.AddContact(request);
             return result.Success ? CreatedAtAction(nameof(GetContactById), new { id = result.Data.Id }, result)
@@ -43,7 +44,7 @@ namespace AddressBook.Controllers
 
         // PUT: Update contact by ID
         [HttpPut("{id}")]
-        public ActionResult<ResponseModel<UserModel>> UpdateContact(int id, [FromBody] UserModel request)
+        public ActionResult<ResponseModelSMT<ResponseUserModel>> UpdateContact(int id, [FromBody] ResponseUserModel request)
         {
             var result = _addressBL.UpdateContact(id, request);
             return result.Success ? Ok(result) : NotFound(result);
@@ -51,7 +52,7 @@ namespace AddressBook.Controllers
 
         // DELETE: Delete contact by ID
         [HttpDelete("{id}")]
-        public ActionResult<ResponseModel<string>> DeleteContact(int id)
+        public ActionResult<ResponseModelSMT<string>> DeleteContact(int id)
         {
             var result = _addressBL.DeleteContact(id);
             return result.Success ? Ok(result) : NotFound(result);
