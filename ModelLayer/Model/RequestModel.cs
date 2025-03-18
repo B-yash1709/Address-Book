@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ModelLayer.Model
 {
-    class RequestModel
+    public class RequestModel
     {
         public int? Id { get; set; }
         public string? Name { get; set; }
