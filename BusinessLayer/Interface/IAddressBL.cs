@@ -1,5 +1,6 @@
 ﻿using ModelLayer.Model;
-using RepositoryLayer.UserEntity;
+using RepositoryLayer.Entity;
+using RepositoryLayer.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,10 +11,10 @@ namespace BusinessLayer.Interface
 {
     public interface IAddressBL
     {
-        ResponseModelSMT<IEnumerable<AddressBookEntity>> GetAllContacts();
-        ResponseModelSMT<ResponseUserModel> GetContactById(int id);
-        ResponseModelSMT<ResponseUserModel> AddContact(ResponseUserModel user);
-        ResponseModelSMT<ResponseUserModel> UpdateContact(int id, ResponseUserModel user);
-        ResponseModelSMT<string> DeleteContact(int id);
+        ResponseModelSMD<IEnumerable<AddressBookEntity>> GetAllContacts();
+        ResponseModelSMD<ResponseUserModel> GetContactById(int id);
+        ResponseModelSMD<ResponseUserModel> AddContact(ResponseUserModel user);
+        ResponseModelSMD<ResponseUserModel> UpdateContact(int id, ResponseUserModel user);
+        ResponseModelSMD<string> DeleteContact(int id);
     }
 }

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using ModelLayer.Model;
-using RepositoryLayer.UserEntity;
+using RepositoryLayer.Entity;
 
 namespace BusinessLayer.Mappings
 {
@@ -15,7 +15,7 @@ namespace BusinessLayer.Mappings
             CreateMap<RequestModel, AddressBookEntity>().ReverseMap();
 
             // Mapping Entity to ResponseModelSMT
-            CreateMap<AddressBookEntity, ResponseModelSMT<RequestModel>>().ReverseMap();
+            CreateMap<AddressBookEntity, ResponseDTO>().ReverseMap();
         }
     }
 }

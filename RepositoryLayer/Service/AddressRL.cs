@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RepositoryLayer.Context;
-using RepositoryLayer.UserEntity;
+using RepositoryLayer.Entity;
 
 namespace RepositoryLayer.Service
 {
@@ -19,6 +19,19 @@ namespace RepositoryLayer.Service
             _context = context;
         }
 
+        // Register user with hashed password
+        public UserEntity Register(UserEntity user)
+        {
+            _context.Users.Add(user);
+            _context.SaveChanges();
+            return user;
+        }
+
+        // Find user by email
+        public UserEntity GetUserByEmail(string email)
+        {
+            return _context.Users.FirstOrDefault(u => u.Email == email);
+        }
         public IEnumerable<AddressBookEntity> GetAllContacts()
         {
             return _context.AddressBookEntities.ToList();

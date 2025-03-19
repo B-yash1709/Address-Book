@@ -1,5 +1,5 @@
 ﻿using ModelLayer.Model;
-using RepositoryLayer.UserEntity;
+using RepositoryLayer.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;

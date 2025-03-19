@@ -1,7 +1,7 @@
 ﻿using BusinessLayer.Interface;
 using ModelLayer.Model;
 using RepositoryLayer.Interface;
-using RepositoryLayer.UserEntity;
+using RepositoryLayer.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,11 +20,11 @@ namespace BusinessLayer.Service
             _addressRL = addressRL;
         }
 
-        public ResponseModelSMT<IEnumerable<AddressBookEntity>> GetAllContacts()
+        public ResponseModelSMD<IEnumerable<AddressBookEntity>> GetAllContacts()
         {
             var contacts = _addressRL.GetAllContacts();
 
-            return new ResponseModelSMT<IEnumerable<AddressBookEntity>>
+            return new ResponseModelSMD<IEnumerable<AddressBookEntity>>
             {
                 Success = true,
                 Message = "Contacts retrieved successfully",
@@ -32,20 +32,20 @@ namespace BusinessLayer.Service
             };
         }
 
-        public ResponseModelSMT<ResponseUserModel> GetContactById(int id)
+        public ResponseModelSMD<ResponseUserModel> GetContactById(int id)
         {
             var contact = _addressRL.GetContactById(id);
 
             if (contact == null)
             {
-                return new ResponseModelSMT<ResponseUserModel>
+                return new ResponseModelSMD<ResponseUserModel>
                 {
                     Success = false,
                     Message = $"Contact with ID {id} not found"
                 };
             }
 
-            return new ResponseModelSMT<ResponseUserModel>
+            return new ResponseModelSMD<ResponseUserModel>
             {
                 Success = true,
                 Message = "Contact retrieved successfully",
@@ -53,11 +53,11 @@ namespace BusinessLayer.Service
             };
         }
 
-        public ResponseModelSMT<ResponseUserModel> AddContact(ResponseUserModel user)
+        public ResponseModelSMD<ResponseUserModel> AddContact(ResponseUserModel user)
         {
             var addedContact = _addressRL.AddContact(user);
 
-            return new ResponseModelSMT<ResponseUserModel>
+            return new ResponseModelSMD<ResponseUserModel>
             {
                 Success = true,
                 Message = "Contact added successfully",
@@ -65,20 +65,20 @@ namespace BusinessLayer.Service
             };
         }
 
-        public ResponseModelSMT<ResponseUserModel> UpdateContact(int id, ResponseUserModel user)
+        public ResponseModelSMD<ResponseUserModel> UpdateContact(int id, ResponseUserModel user)
         {
             var updatedContact = _addressRL.UpdateContact(id, user);
 
             if (updatedContact == null)
             {
-                return new ResponseModelSMT<ResponseUserModel>
+                return new ResponseModelSMD<ResponseUserModel>
                 {
                     Success = false,
                     Message = $"Contact with ID {id} not found"
                 };
             }
 
-            return new ResponseModelSMT<ResponseUserModel>
+            return new ResponseModelSMD<ResponseUserModel>
             {
                 Success = true,
                 Message = "Contact updated successfully",
@@ -86,20 +86,20 @@ namespace BusinessLayer.Service
             };
         }
 
-        public ResponseModelSMT<string> DeleteContact(int id)
+        public ResponseModelSMD<string> DeleteContact(int id)
         {
             var isDeleted = _addressRL.DeleteContact(id);
 
             if (!isDeleted)
             {
-                return new ResponseModelSMT<string>
+                return new ResponseModelSMD<string>
                 {
                     Success = false,
                     Message = $"Contact with ID {id} not found"
                 };
             }
 
-            return new ResponseModelSMT<string>
+            return new ResponseModelSMD<string>
             {
                 Success = true,
                 Message = "Contact deleted successfully",
