@@ -2,27 +2,44 @@
 using ModelLayer.Model;
 using RepositoryLayer.Interface;
 using RepositoryLayer.Entity;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace BusinessLayer.Service
 {
     public class AddressBL : IAddressBL
     {
         private readonly IAddressRL _addressRL;
+        private readonly RedisCacheService _cacheService;
 
-
-        public AddressBL(IAddressRL addressRL)
+        public AddressBL(IAddressRL addressRL, RedisCacheService cacheService)
         {
             _addressRL = addressRL;
+            _cacheService = cacheService;
         }
 
+        // ✅ Get All Contacts with Redis Caching
         public ResponseModelSMD<IEnumerable<AddressBookEntity>> GetAllContacts()
         {
-            var contacts = _addressRL.GetAllContacts();
+            const string cacheKey = "contacts";
+
+            IEnumerable<AddressBookEntity> contacts;
+
+            // ✅ Check Redis Cache First
+            if (_cacheService.Exists(cacheKey))
+            {
+                var cachedData = _cacheService.Get(cacheKey);
+                contacts = JsonConvert.DeserializeObject<IEnumerable<AddressBookEntity>>(cachedData);
+                Console.WriteLine("Retrieved contacts from cache.");
+            }
+            else
+            {
+                contacts = _addressRL.GetAllContacts();
+
+                // ✅ Cache the result in Redis
+                _cacheService.Set(cacheKey, JsonConvert.SerializeObject(contacts), TimeSpan.FromMinutes(30));
+                Console.WriteLine("Stored contacts in cache.");
+            }
 
             return new ResponseModelSMD<IEnumerable<AddressBookEntity>>
             {
@@ -32,17 +49,35 @@ namespace BusinessLayer.Service
             };
         }
 
+        // ✅ Get Contact by ID with Redis Caching
         public ResponseModelSMD<ResponseUserModel> GetContactById(int id)
         {
-            var contact = _addressRL.GetContactById(id);
+            string cacheKey = $"contact:{id}";
 
-            if (contact == null)
+            ResponseUserModel contact;
+
+            if (_cacheService.Exists(cacheKey))
             {
-                return new ResponseModelSMD<ResponseUserModel>
+                var cachedData = _cacheService.Get(cacheKey);
+                contact = JsonConvert.DeserializeObject<ResponseUserModel>(cachedData);
+                Console.WriteLine($"Retrieved contact ID {id} from cache.");
+            }
+            else
+            {
+                contact = _addressRL.GetContactById(id);
+
+                if (contact == null)
                 {
-                    Success = false,
-                    Message = $"Contact with ID {id} not found"
-                };
+                    return new ResponseModelSMD<ResponseUserModel>
+                    {
+                        Success = false,
+                        Message = $"Contact with ID {id} not found"
+                    };
+                }
+
+                // ✅ Cache the contact data
+                _cacheService.Set(cacheKey, JsonConvert.SerializeObject(contact), TimeSpan.FromMinutes(30));
+                Console.WriteLine($"Stored contact ID {id} in cache.");
             }
 
             return new ResponseModelSMD<ResponseUserModel>
@@ -53,9 +88,13 @@ namespace BusinessLayer.Service
             };
         }
 
+        // ✅ Add Contact with Cache Invalidation
         public ResponseModelSMD<ResponseUserModel> AddContact(ResponseUserModel user)
         {
             var addedContact = _addressRL.AddContact(user);
+
+            // ✅ Invalidate cache after adding a new contact
+            _cacheService.Remove("contacts");
 
             return new ResponseModelSMD<ResponseUserModel>
             {
@@ -65,6 +104,7 @@ namespace BusinessLayer.Service
             };
         }
 
+        // ✅ Update Contact with Cache Invalidation
         public ResponseModelSMD<ResponseUserModel> UpdateContact(int id, ResponseUserModel user)
         {
             var updatedContact = _addressRL.UpdateContact(id, user);
@@ -78,6 +118,11 @@ namespace BusinessLayer.Service
                 };
             }
 
+            // ✅ Invalidate cache after updating a contact
+            string cacheKey = $"contact:{id}";
+            _cacheService.Remove(cacheKey);
+            _cacheService.Remove("contacts");
+
             return new ResponseModelSMD<ResponseUserModel>
             {
                 Success = true,
@@ -86,6 +131,7 @@ namespace BusinessLayer.Service
             };
         }
 
+        // ✅ Delete Contact with Cache Invalidation
         public ResponseModelSMD<string> DeleteContact(int id)
         {
             var isDeleted = _addressRL.DeleteContact(id);
@@ -99,14 +145,17 @@ namespace BusinessLayer.Service
                 };
             }
 
+            // ✅ Invalidate cache after deleting a contact
+            string cacheKey = $"contact:{id}";
+            _cacheService.Remove(cacheKey);
+            _cacheService.Remove("contacts");
+
             return new ResponseModelSMD<string>
             {
                 Success = true,
                 Message = "Contact deleted successfully",
                 Data = $"Contact with ID {id} deleted"
             };
-
-
         }
     }
 }

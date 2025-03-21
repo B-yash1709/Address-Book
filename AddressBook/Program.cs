@@ -32,6 +32,10 @@ builder.Services.AddAutoMapper(typeof(AddressBookProfile));
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// ✅ Redis Configuration
+builder.Services.AddSingleton<RedisCacheService>();
+
+
 // ✅ JWT Configuration
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];

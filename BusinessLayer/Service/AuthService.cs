@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using System;
 using Microsoft.IdentityModel.Tokens;
 using System.Net.Mail;
+using Newtonsoft.Json;
 
 
 namespace BusinessLayer.Service
@@ -21,19 +22,22 @@ namespace BusinessLayer.Service
         private readonly IMapper _mapper;
         private readonly EmailService _emailService;
         private readonly IConfiguration _config;
+        private readonly RedisCacheService _redisCache;
 
         public AuthService(
             AuthRepository authRepo,
             JwtService jwtService,
             IMapper mapper,
             EmailService emailService,
-            IConfiguration config)
+            IConfiguration config,
+            RedisCacheService redisCache)
         {
             _authRepo = authRepo;
             _jwtService = jwtService;
             _mapper = mapper;
             _emailService = emailService;
             _config = config;
+            _redisCache = redisCache;
         }
 
         // ✅ Register Method
@@ -55,6 +59,11 @@ namespace BusinessLayer.Service
             var registeredUser = _authRepo.Register(userEntity);
             var userResponse = _mapper.Map<UserResponse>(registeredUser);
 
+            // ✅ Cache the user in Redis
+            var cacheKey = $"user:{userResponse.Email}";
+            _redisCache.Set(cacheKey, JsonConvert.SerializeObject(userResponse), TimeSpan.FromMinutes(30));
+
+
             return new ResponseModelSMD<UserResponse>
             {
                 Success = true,
@@ -66,20 +75,37 @@ namespace BusinessLayer.Service
         // ✅ Login Method
         public ResponseModelSMD<UserResponse> Login(LoginDTO dto)
         {
-            var user = _authRepo.GetUserByEmail(dto.Email);
+            var cacheKey = $"user:{dto.Email}";
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+            UserResponse userResponse;
+
+            // ✅ Check if user data exists in Redis
+            if (_redisCache.Exists(cacheKey))
             {
-                return new ResponseModelSMD<UserResponse>
-                {
-                    Success = false,
-                    Message = "Invalid credentials"
-                };
+                var cachedData = _redisCache.Get(cacheKey);
+                userResponse = JsonConvert.DeserializeObject<UserResponse>(cachedData);
+                Console.WriteLine($"Retrieved from cache: {cachedData}");
             }
+            else
+            {
+                var user = _authRepo.GetUserByEmail(dto.Email);
 
-            var token = _jwtService.GenerateToken(user.Email);
-            var userResponse = _mapper.Map<UserResponse>(user);
-            userResponse.Token = token;
+                if (user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+                {
+                    return new ResponseModelSMD<UserResponse>
+                    {
+                        Success = false,
+                        Message = "Invalid credentials"
+                    };
+                }
+
+                var token = _jwtService.GenerateToken(user.Email);
+                userResponse = _mapper.Map<UserResponse>(user);
+                userResponse.Token = token;
+
+                // ✅ Store in Redis cache
+                _redisCache.Set(cacheKey, JsonConvert.SerializeObject(userResponse), TimeSpan.FromMinutes(30));
+            }
 
             return new ResponseModelSMD<UserResponse>
             {
