@@ -1,6 +1,5 @@
 ﻿using ModelLayer.Model;
 using RepositoryLayer.Entity;
-using RepositoryLayer.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -17,7 +17,7 @@ namespace RepositoryLayer.Entity
         public string? Email { get; set; }
         [Required]
         public string? Password { get; set; }
-
+       
         // Navigation Property for One-to-Many Relationship
         public virtual List<AddressBookEntity> Addresses { get; set; } = new List<AddressBookEntity>();
     }

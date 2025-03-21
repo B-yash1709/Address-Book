@@ -1,4 +1,4 @@
-using BusinessLayer.Interface;
+﻿using BusinessLayer.Interface;
 using BusinessLayer.Mappings;
 using BusinessLayer.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,25 +11,28 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//  Add Database Context
+// ✅ Add Database Context
 builder.Services.AddDbContext<AddressBookDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//  Configure Dependency Injection
+// ✅ Configure Dependency Injection
 builder.Services.AddScoped<IAddressRL, AddressRL>();
 builder.Services.AddScoped<IAddressBL, AddressBL>();
-builder.Services.AddScoped<AuthRepository>();
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IAuthService, AuthService>();           // Register AuthService
+builder.Services.AddScoped<AuthRepository>();                      // Register AuthRepository
+builder.Services.AddScoped<JwtService>();                          // Register JwtService
 
-//  Register AutoMapper
+// ✅ Register EmailService without interface
+builder.Services.AddScoped<EmailService>();
+
+// ✅ Register AutoMapper
 builder.Services.AddAutoMapper(typeof(AddressBookProfile));
 
-//  Add services to the container
+// ✅ Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
-//  JWT Configuration
+// ✅ JWT Configuration
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["SecretKey"];
 
@@ -55,11 +58,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 var app = builder.Build();
 
-//  Middleware Configuration
+// ✅ Middleware Configuration
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
 app.Run();

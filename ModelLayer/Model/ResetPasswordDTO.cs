@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace ModelLayer.Model
 {
-   public class LoginDTO
+   public  class ResetPasswordDTO
     {
         [Required]
-        public string? Email { get; set; }
+        public string? Token { get; set; }
         [Required]
-        public string? Password { get; set; }
+        public string? NewPassword { get; set; }
     }
 }

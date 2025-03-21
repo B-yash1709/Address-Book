@@ -48,5 +48,61 @@ namespace BusinessLayer.Service
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+        // Generate Reset Token
+        // ✅ Generate JWT Token
+        public string GenerateResetToken(string email)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_key);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                    new Claim(ClaimTypes.Email, email)   // ✅ Store Email in Claim
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(30),  // Token valid for 30 minutes
+                Issuer = _issuer,
+                Audience = _audience,
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
+
+        // ✅ Token Validation with Clock Skew
+        public string ValidateToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_key);
+
+            try
+            {
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = _issuer,
+                    ValidAudience = _audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ClockSkew = TimeSpan.Zero  // ✅ No Clock Skew
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+                // ✅ Extract Email from Claims
+                var emailClaim = principal.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email);
+                return emailClaim?.Value;  // Return the Email from Token
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Token validation failed: {ex.Message}");
+                return null;  // Invalid token
+            }
+        }
     }
 }
